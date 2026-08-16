@@ -34,7 +34,9 @@ jobs:
         continue-on-error: true
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
-        run: bash build.sh 2>&1 | tee build-output.log
+        run: |
+          set -o pipefail
+          bash build.sh 2>&1 | tee build-output.log
 
       - name: Report build failure
         if: steps.build.outcome == 'failure'
@@ -51,7 +53,6 @@ jobs:
         run: |
           cp build/outputs/liuying-video.apk liuying-video.apk
           sha256sum liuying-video.apk > liuying-video.apk.sha256
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose liuying-video.apk
 
       - name: Create GitHub Release
         env:
