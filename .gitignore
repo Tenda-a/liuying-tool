@@ -1,0 +1,31 @@
+# Android build outputs and signing material
+/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.jks
+*.keystore
+*.idsig
+
+# Local SDK and IDE settings
+local.properties
+.gradle/
+.idea/
+.vscode/
+*.iml
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# AIDE outputs
+/app/bin/
+/app/gen/
+/app/obj/
+
+/dist/
+/liuying-video.apk.sha256
