@@ -41,12 +41,14 @@ jobs:
       - name: Report build failure
         if: steps.build.outcome == 'failure'
         run: |
-          while IFS= read -r line; do
-            line=${line//'%'/'%25'}
-            line=${line//$'\r'/'%0D'}
-            line=${line//$'\n'/'%0A'}
-            echo "::error title=Android build output::$line"
-          done < <(tail -60 build-output.log)
+          {
+            echo '## Android build failed'
+            echo '```text'
+            tail -100 build-output.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          last_line=$(tail -1 build-output.log | sed 's/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+          echo "::error file=build.sh,line=1,title=Android build failed::$last_line"
           exit 1
 
       - name: Prepare release files
