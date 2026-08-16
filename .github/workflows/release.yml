@@ -34,6 +34,7 @@ jobs:
         continue-on-error: true
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -o pipefail
           bash build.sh 2>&1 | tee build-output.log
@@ -47,8 +48,11 @@ jobs:
             tail -100 build-output.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-          last_line=$(tail -1 build-output.log | sed 's/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
-          echo "::error file=build.sh,line=1,title=Android build failed::$last_line"
+          gh release delete "${GITHUB_REF_NAME}" --yes 2>/dev/null || true
+          gh release create "${GITHUB_REF_NAME}" build-output.log \
+            --draft \
+            --title "Build diagnostics ${GITHUB_REF_NAME}" \
+            --notes 'Temporary diagnostic release; not for distribution.'
           exit 1
 
       - name: Prepare release files
@@ -60,6 +64,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh release delete "${GITHUB_REF_NAME}" --yes 2>/dev/null || true
           gh release create "${GITHUB_REF_NAME}" \
             liuying-video.apk \
             liuying-video.apk.sha256 \
