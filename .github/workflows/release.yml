@@ -42,7 +42,7 @@ jobs:
       - name: Report build failure
         if: steps.build.outcome == 'failure'
         run: |
-          encoded=$(gzip -c build-output.log | base64 -w 0)
+          encoded=$(tail -20 build-output.log | gzip -c | base64 -w 0 | cut -c1-8000)
           echo "::error file=build.sh,line=1,title=Android build log (gzip+base64)::$encoded"
           exit 1
 
