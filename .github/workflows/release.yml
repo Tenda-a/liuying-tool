@@ -30,17 +30,22 @@ jobs:
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Build signed test APK
+        id: build
+        continue-on-error: true
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+        run: bash build.sh 2>&1 | tee build-output.log
+
+      - name: Report build failure
+        if: steps.build.outcome == 'failure'
         run: |
-          set +e
-          bash build.sh 2>&1 | tee build-output.log
-          status=${PIPESTATUS[0]}
-          if (( status != 0 )); then
-            message=$(tail -40 build-output.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
-            echo "::error title=Android build failed::$message"
-            exit "$status"
-          fi
+          while IFS= read -r line; do
+            line=${line//'%'/'%25'}
+            line=${line//$'\r'/'%0D'}
+            line=${line//$'\n'/'%0A'}
+            echo "::error title=Android build output::$line"
+          done < <(tail -60 build-output.log)
+          exit 1
 
       - name: Prepare release files
         run: |
