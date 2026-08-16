@@ -30,21 +30,9 @@ jobs:
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Build signed test APK
-        id: build
-        continue-on-error: true
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -o pipefail
-          bash build.sh 2>&1 | tee build-output.log
-
-      - name: Report build failure
-        if: steps.build.outcome == 'failure'
-        run: |
-          encoded=$(tail -20 build-output.log | gzip -c | base64 -w 0 | cut -c1-8000)
-          echo "::error file=build.sh,line=1,title=Android build log (gzip+base64)::$encoded"
-          exit 1
+        run: bash build.sh
 
       - name: Prepare release files
         run: |

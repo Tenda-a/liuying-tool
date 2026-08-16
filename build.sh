@@ -35,7 +35,10 @@ resolve_tool() {
   fi
   local tools
   tools="$(latest_dir "$SDK/build-tools")"
-  [[ -x "$tools/$name" ]] && printf '%s\n' "$tools/$name"
+  if [[ -x "$tools/$name" ]]; then
+    printf '%s\n' "$tools/$name"
+  fi
+  return 0
 }
 
 AAPT2="$(resolve_tool aapt2)"
