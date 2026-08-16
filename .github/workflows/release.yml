@@ -41,19 +41,9 @@ jobs:
 
       - name: Report build failure
         if: steps.build.outcome == 'failure'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo '## Android build failed'
-            echo '```text'
-            tail -100 build-output.log
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-          gh release delete "${GITHUB_REF_NAME}" --yes 2>/dev/null || true
-          gh release create "${GITHUB_REF_NAME}" build-output.log \
-            --title "Temporary build diagnostics ${GITHUB_REF_NAME}" \
-            --notes-file build-output.log
+          encoded=$(gzip -c build-output.log | base64 -w 0)
+          echo "::error file=build.sh,line=1,title=Android build log (gzip+base64)::$encoded"
           exit 1
 
       - name: Prepare release files
