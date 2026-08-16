@@ -41,6 +41,8 @@ jobs:
 
       - name: Report build failure
         if: steps.build.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           {
             echo '## Android build failed'
@@ -50,9 +52,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           gh release delete "${GITHUB_REF_NAME}" --yes 2>/dev/null || true
           gh release create "${GITHUB_REF_NAME}" build-output.log \
-            --draft \
-            --title "Build diagnostics ${GITHUB_REF_NAME}" \
-            --notes 'Temporary diagnostic release; not for distribution.'
+            --title "Temporary build diagnostics ${GITHUB_REF_NAME}" \
+            --notes-file build-output.log
           exit 1
 
       - name: Prepare release files
